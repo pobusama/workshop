@@ -1,5 +1,6 @@
 
 var fs = require('fs');
+var co = require('co');
 
 /**
  * Create a yieldable version of `fs.stat()`:
@@ -12,7 +13,17 @@ var fs = require('fs');
  */
 
 exports.stat = function (filename) {
-
+    // return new Promise((resolve, reject) => {
+    //     fs.stat(filename, (err, stats) => {
+    //         if (err) reject(err);
+    //         else resolve(stats);
+    //     })
+    // })
+    return next => {
+        return fs.stat(filename, (err, stats) => {
+            next(err, stats);
+        });
+    }
 };
 
 /**
@@ -32,5 +43,10 @@ exports.stat = function (filename) {
  */
 
 exports.exists = function (filename) {
-
+    return new Promise((resolve, reject) => {
+        fs.stat(filename, (err, stats) => {
+            if (err) resolve(false);
+            else resolve(true);
+        })
+    })
 };
